@@ -6,6 +6,8 @@
 
   const locale = navigator.language || navigator.userLanguage;
 
+  document.title = `Linear-Kalender für ${year}`;
+
   const container = document.getElementById("calendar");
 
   // generate months 01-12

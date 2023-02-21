@@ -13,7 +13,7 @@
 @page {
   size: 297mm 210mm;
   padding: 0;
-  /* margin: 5mm; */
+  margin: 5mm;
 }
 
 body {
@@ -22,8 +22,6 @@ body {
 
 #calendar {
   margin-left: var(--day-width); /* for glue flaps */
-
-  background-color: white;
 }
 
 .number {
@@ -31,7 +29,7 @@ body {
 }
 
 .month {
-  display: inline-block;
+  display: table;
   position: relative;
   background-image: linear-gradient(
     to right,
@@ -105,7 +103,12 @@ body {
 
 /* glue flaps */
 .month:not(:first-child)::before {
-  content: "";
+  content: "hier kleben / glue here";
+  writing-mode: vertical-lr;
+  text-align: center;
+  line-height: var(--day-width);
+  color: var(--border-color);
+
   display: block;
   position: absolute;
 
@@ -114,7 +117,7 @@ body {
   margin: auto 0;
   left: calc(-1 * var(--day-width));
 
-  --border-width: 1pt;
+  --border-width: 0.5mm;
   border: var(--border-width) solid var(--border-color);
   height: calc(100% - 2 * var(--border-width));
 

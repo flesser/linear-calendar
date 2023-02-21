@@ -1,0 +1,131 @@
+:root {
+  --font-family-text: "Source Sans Pro", sans-serif;
+  --font-family-numbers: "Source Sans Pro", sans-serif; /* TODO */
+  --rainbow-saturation: 80%;
+  --rainbow-lightness: 60%;
+  --border-color: #aeaaaa;
+  --border: 0.25mm solid var(--border-color); /* actual thickness will be double since there are two adjacent borders between elements */
+  --day-width: 8mm;
+  --day-height: 75mm;
+  --month-title-height: 12mm;
+}
+
+@page {
+  size: 297mm 210mm;
+  padding: 0;
+  /* margin: 5mm; */
+}
+
+body {
+  font-family: var(--font-family-text);
+}
+
+#calendar {
+  margin-left: var(--day-width); /* for glue flaps */
+
+  background-color: white;
+}
+
+.number {
+  font-family: var(--font-family-numbers);
+}
+
+.month {
+  display: inline-block;
+  position: relative;
+  background-image: linear-gradient(
+    to right,
+    hsl(var(--start-hue), var(--rainbow-saturation), var(--rainbow-lightness)),
+    hsl(var(--end-hue), var(--rainbow-saturation), var(--rainbow-lightness))
+  );
+  page-break-inside: avoid;
+  margin-top: 5mm;
+}
+
+.month > .title {
+  text-align: center;
+  color: white;
+  height: var(--month-title-height);
+  line-height: var(--month-title-height);
+  font-size: calc(var(--month-title-height) * 0.6);
+
+  position: relative;
+}
+
+.month > .title > .year {
+  font-family: var(--font-family-numbers);
+  position: absolute;
+  left: 5mm;
+}
+
+.days {
+  --number-of-days: 30;
+
+  border: var(--border);
+  height: var(--day-height);
+
+  text-align: center;
+  display: grid;
+
+  grid-template-columns: repeat(var(--number-of-days), var(--day-width));
+  grid-template-rows: var(--day-width) max-content auto;
+
+  grid-auto-flow: column;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+
+.day {
+  border: var(--border);
+  background-color: white;
+}
+
+.day.weekday-0 {
+  margin-right: 1mm;
+  border-right: none;
+}
+
+.day.weekday-1 {
+  border-left: none;
+}
+
+.day.number {
+  font-size: calc(var(--day-width) * 0.6);
+  line-height: var(--day-width);
+}
+
+.day.title {
+  padding: 1ex 0;
+}
+
+.day.title span {
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+}
+
+/* glue flaps */
+.month:not(:first-child)::before {
+  content: "";
+  display: block;
+  position: absolute;
+
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  left: calc(-1 * var(--day-width));
+
+  --border-width: 1pt;
+  border: var(--border-width) solid var(--border-color);
+  height: calc(100% - 2 * var(--border-width));
+
+  width: var(--day-width);
+  transform: perspective(10px) rotateY(-1deg);
+  transform-origin: right;
+  z-index: -1;
+}
+
+@media print {
+  .noprint {
+    display: none;
+  }
+}

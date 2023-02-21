@@ -1,14 +1,26 @@
-(function drawCalendar(document) {
+function drawCalendar(document, trigger) {
   const date = new Date();
-  const year = Number(document.location.hash.slice(1)) || date.getFullYear();
-  date.setFullYear(year);
-  date.setHours(12); // to prevent strange things happening if executed exactly around midnight...
 
   const locale = navigator.language || navigator.userLanguage;
 
-  document.title = `Linear-Kalender für ${year}`;
+  const yearInput = document.getElementById("yearInput");
 
+  let year = date.getFullYear();
+
+  if (trigger == "input") {
+    year = Number(yearInput.value) || date.getFullYear();
+    history.pushState(null, null, `#${year}`);
+  } else {
+    year = Number(document.location.hash.slice(1)) || date.getFullYear();
+    yearInput.value = year;
+  }
+
+  date.setFullYear(year);
+  date.setHours(12); // to prevent strange things happening if executed exactly around midnight...
+
+  document.title = `Linear-Kalender für ${year}`;
   const container = document.getElementById("calendar");
+  container.replaceChildren();
 
   // generate months 01-12
   for (let m = 0; m < 12; m++) {
@@ -65,4 +77,20 @@
     month.append(daysWrapper);
     container.append(month);
   }
-})(document);
+}
+
+window.addEventListener(
+  "hashchange",
+  ({ newURL, oldURL }) => {
+    if (newURL != oldURL) {
+      drawCalendar(document, "hash");
+    }
+  },
+  false
+);
+
+document.getElementById("yearInput").addEventListener("input", (e) => {
+  drawCalendar(document, "input");
+});
+
+drawCalendar(document);

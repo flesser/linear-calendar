@@ -37,13 +37,17 @@
       <hr />
       <form>
         <label for="yearInput">Jahr:</label>
-        <input type="number" size="4" id="yearInput" />
+        <input type="number" size="4" name="year" id="yearInput" />
+
+        <label for="localeInput">Sprache:</label>
+        <select name="locale" id="localeInput"></select>
       </form>
       <hr />
     </div>
 
     <div id="calendar"></div>
 
+    <script src="languages.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

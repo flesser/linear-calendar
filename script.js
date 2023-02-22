@@ -1,19 +1,33 @@
-function drawCalendar(document, trigger) {
-  const date = new Date();
+const DEFAULT_YEAR = new Date().getFullYear();
+const DEFAULT_LOCALE = String(
+  navigator.language || navigator.userLanguage
+).slice(0, 2);
 
-  const locale = navigator.language || navigator.userLanguage;
+function parseHash() {
+  const fields = document.location.hash.slice(1).split("|");
+  var year, locale;
 
-  const yearInput = document.getElementById("yearInput");
-
-  let year = date.getFullYear();
-
-  if (trigger == "input") {
-    year = Number(yearInput.value) || date.getFullYear();
-    history.pushState(null, null, `#${year}`);
+  if (fields.length == 1) {
+    year = Number(fields[0]);
   } else {
-    year = Number(document.location.hash.slice(1)) || date.getFullYear();
-    yearInput.value = year;
+    year = Number(fields[1]);
+    locale = fields[0];
   }
+
+  return { year: year || DEFAULT_YEAR, locale: locale || DEFAULT_LOCALE };
+}
+function setHash({ year, locale }) {
+  const current = parseHash();
+  history.pushState(
+    null,
+    null,
+    `#${locale || current.locale}|${year || current.year}`
+  );
+}
+
+function drawCalendar() {
+  const date = new Date();
+  const { year, locale } = parseHash();
 
   date.setFullYear(year);
   date.setHours(12); // to prevent strange things happening if executed exactly around midnight...
@@ -66,7 +80,7 @@ function drawCalendar(document, trigger) {
       dayTitle.className = `day title weekday-${date.getDay()}`;
 
       const dayTitleSpan = document.createElement("span");
-      dayTitleSpan.append(date.toLocaleString(locale, { weekday: "long" })); // TODO: option short
+      dayTitleSpan.append(date.toLocaleString(locale, { weekday: "long" })); // TODO: option for "short"?
       dayTitle.append(dayTitleSpan);
 
       const dayNotes = document.createElement("div");
@@ -79,18 +93,61 @@ function drawCalendar(document, trigger) {
   }
 }
 
-window.addEventListener(
-  "hashchange",
-  ({ newURL, oldURL }) => {
-    if (newURL != oldURL) {
-      drawCalendar(document, "hash");
+function setupLocaleInput(localeInput) {
+  // const LANGUAGES_LIST is defined in languages.js which has to be included in the same html file
+
+  const supportedLocales = Intl.DateTimeFormat.supportedLocalesOf(
+    Object.keys(LANGUAGES_LIST),
+    { localeMatcher: "lookup" }
+  );
+
+  for (const code of supportedLocales) {
+    if (!LANGUAGES_LIST[code]) {
+      continue;
     }
-  },
-  false
-);
+    const option = document.createElement("option");
+    option.setAttribute("value", code);
+    option.append(
+      `${LANGUAGES_LIST[code].name} (${LANGUAGES_LIST[code].nativeName})`
+    );
+    localeInput.append(option);
+  }
+}
 
-document.getElementById("yearInput").addEventListener("input", (e) => {
-  drawCalendar(document, "input");
-});
+// ----------------------------------------------------------------------------------
 
-drawCalendar(document);
+(function main() {
+  const yearInput = document.getElementById("yearInput");
+  const localeInput = document.getElementById("localeInput");
+  setupLocaleInput(localeInput);
+
+  const { year, locale } = parseHash();
+  yearInput.value = year;
+  localeInput.value = locale;
+
+  if (year != DEFAULT_YEAR || locale != DEFAULT_LOCALE) {
+    setHash(year, locale);
+  }
+
+  window.addEventListener(
+    "hashchange",
+    ({ newURL, oldURL }) => {
+      if (newURL != oldURL) {
+        drawCalendar();
+      }
+    },
+    false
+  );
+
+  yearInput.addEventListener("input", (e) => {
+    setHash({ year: Number(yearInput.value) });
+    drawCalendar();
+  });
+
+  localeInput.addEventListener("input", (e) => {
+    setHash({ locale: localeInput.value });
+    drawCalendar();
+  });
+
+  drawCalendar();
+})();

@@ -132,3 +132,16 @@ body {
     display: none;
   }
 }
+
+.links {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 80%;
+  margin: 1em;
+}
+
+.links,
+.links a {
+  color: var(--border-color);
+}
